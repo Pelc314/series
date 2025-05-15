@@ -16,8 +16,7 @@ modules:
   build-parameters:
     builder: npm-ci
   requires:
-    # Add this requirement for XSUAA
-    - name: series-xsuaa # <-- Match the resource name below
+    - name: series-xsuaa # <-- Keep XSUAA if you need authentication
 
 - name: series-app-content
   type: com.sap.application.content
