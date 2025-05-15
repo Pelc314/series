@@ -35,6 +35,24 @@ modules:
             - hcrseries.zip
           name: hcrseries
           target-path: resources/
+  # Add the Database Deployer Module
+  - name: series-db-deployer # A name for the deployer module
+    type: nodejs # It's a Node.js module that runs cds deploy
+    path: gen/db # The path where cds build generates DB artifacts (for postgresql)
+    parameters:
+      buildpack: nodejs_buildpack
+      no-start: true # We don't need this module to run continuously, only during deploy
+    build-parameters:
+      builder: npm-ci
+      # Ensure cds build for postgresql runs BEFORE building this deployer module
+      before-all:
+        - builder: custom
+          commands:
+            # This command generates the database artifacts for PostgreSQL in gen/db
+            - npx cds build --production --for postgresql
+    requires:
+      # The deployer needs to be bound to the database service instance
+      - name: db # This name MUST match the database resource name
 
   - name: hcrseries
     type: html5
@@ -89,7 +107,7 @@ resources:
   - name: db # You can use this name or choose another, but be consistent
     type: org.cloudfoundry.managed-service
     parameters:
-      service: db # <-- VERIFY this service name (could be 'postgresql')
+      service: postgresql-db # <-- VERIFY this service name (could be 'postgresql')
       service-plan: trial # <-- VERIFY this plan name (could be 'lite', etc.)
       # You might need additional parameters depending on the service and plan.
       # Check the service details in the BTP Service Marketplace.
