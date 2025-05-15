@@ -15,6 +15,10 @@ modules:
     instances: 1
   build-parameters:
     builder: npm-ci
+  requires:
+    # Add this requirement for XSUAA
+    - name: series-xsuaa # <-- Match the resource name below
+
 - name: series-app-content
   type: com.sap.application.content
   path: .
@@ -29,6 +33,7 @@ modules:
       - hcrseries.zip
       name: hcrseries
       target-path: resources/
+
 - name: hcrseries
   type: html5
   path: app/series
@@ -39,13 +44,16 @@ modules:
     - npm install
     - npm run build:cf
     supported-platforms: []
+
 resources:
+# Your existing resources
 - name: series-repo-host
   type: org.cloudfoundry.managed-service
   parameters:
     service: html5-apps-repo
     service-name: series-html5-service
     service-plan: app-host
+
 - name: series-destination-service
   type: org.cloudfoundry.managed-service
   parameters:
@@ -60,13 +68,27 @@ resources:
             Type: HTTP
             URL: https://ui5.sap.com
           existing_destinations_policy: update
-      version: 1.0.0
+        version: 1.0.0
     service: destination
     service-name: series-destination-service
     service-plan: lite
+
+# Add the XSUAA resource
+- name: series-xsuaa # <-- Match the requires name in series-srv module
+  type: org.cloudfoundry.managed-service
+  parameters:
+     service: xsuaa
+     service-plan: application
+     path: ./xs-security.json # Make sure this file exists in your project root
+     config:
+        xsappname: series-${space}
+        tenant-mode: dedicated
+        # ... other XSUAA config
+
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
+
 build-parameters:
   before-all:
   - builder: custom
