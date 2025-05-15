@@ -1,5 +1,5 @@
 {
-  "xsappname": "series",
+  "xsappname": "series-${space}",
   "tenant-mode": "dedicated",
   "description": "Security profile of called application",
   "scopes": [],
