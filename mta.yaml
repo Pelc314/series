@@ -36,7 +36,7 @@ modules:
           name: hcrseries
           target-path: resources/
 
-  # - name: series-db-deployer # A name for the deployer module
+  # - name: series-db-deployer # A name for the deployer module # test
   #   type: nodejs # It's a Node.js module that runs cds deploy
   #   path: gen/db # The path where cds build generates DB artifacts (for postgresql)
   #   parameters:
