@@ -36,23 +36,24 @@ modules:
           name: hcrseries
           target-path: resources/
 
-  # - name: series-db-deployer # A name for the deployer module # test
-  #   type: nodejs # It's a Node.js module that runs cds deploy
-  #   path: gen/db # The path where cds build generates DB artifacts (for postgresql)
-  #   parameters:
-  #     buildpack: nodejs_buildpack
-  #     no-start: true # We don't need this module to run continuously, only during deploy
-  #   build-parameters:
-  #     builder: npm-ci
-  #     # Ensure cds build for postgresql runs BEFORE building this deployer module
-  #     before-all:
-  #       - builder: custom
-  #         commands:
-  #           # This command generates the database artifacts for PostgreSQL in gen/db
-  #           - npx cds build --production --for postgresql
-  #   requires:
-  #     # The deployer needs to be bound to the database service instance
-  #     - name: db # This name MUST match the database resource name
+  - name: series-db-deployer # A name for the deployer module # test
+    type: nodejs # It's a Node.js module that runs cds deploy
+    path: gen/pg/db # The path where cds build generates DB artifacts (for postgresql)
+    parameters:
+      buildpack: nodejs_buildpack
+      no-start: true # We don't need this module to run continuously, only during deploy
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install --production
+      before-all:
+        - builder: custom
+          commands:
+            # This command generates the database artifacts for PostgreSQL in gen/db
+            - npx cds build --production --for postgresql
+    requires:
+      # The deployer needs to be bound to the database service instance
+      - name: db # This name MUST match the database resource name
 
   - name: hcrseries
     type: html5
@@ -66,7 +67,6 @@ modules:
       supported-platforms: []
 
 resources:
-  # Your existing resources
   - name: series-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
@@ -93,7 +93,6 @@ resources:
       service-name: series-destination-service
       service-plan: lite
 
-  # Add the XSUAA resource
   - name: series-xsuaa # <-- Match the requires name in series-srv module
     type: org.cloudfoundry.managed-service
     parameters:
@@ -103,14 +102,11 @@ resources:
       config:
         xsappname: series-${space}
         tenant-mode: dedicated
-        # ... other XSUAA config
-  - name: db # You can use this name or choose another, but be consistent
+  - name: db 
     type: org.cloudfoundry.managed-service
     parameters:
-      service: postgresql-db # <-- VERIFY this service name (could be 'postgresql')
-      service-plan: trial # <-- VERIFY this plan name (could be 'lite', etc.)
-      # You might need additional parameters depending on the service and plan.
-      # Check the service details in the BTP Service Marketplace.
+      service: postgresql-db 
+      service-plan: trial 
 
 parameters:
   deploy_mode: html5-repo
