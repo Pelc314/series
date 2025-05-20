@@ -9,7 +9,7 @@ build-parameters:
     - builder: custom
       commands:
         - npm ci
-        - npx cds build --production --for postgresql
+        - npx cds build --production
         - echo "---Global-build-Contents of gen/pg/db AFTER global cds build:---"
         - ls -la gen/pg/db # CRITICAL DIAGNOSTIC: Verify package.json is here
         - echo "--------------------------------------------------------------------"
@@ -50,21 +50,15 @@ modules:
 
   - name: series-db-deployer # A name for the deployer module # test
     type: nodejs # It's a Node.js module that runs cds deploy
-    path: gen/pg/db # The path where cds build generates DB artifacts (for postgresql)
+    path: gen/pg # The path where cds build generates DB artifacts (for postgresql)
     parameters:
       buildpack: nodejs_buildpack
+      no-route: true
       no-start: true # We don't need this module to run continuously, only during deploy
-    build-parameters:
-      builder: custom
-      commands:
-        - npm install --production
-      before-all:
-        - builder: custom
-          commands:
-            # This command generates the database artifacts for PostgreSQL in gen/db
-            - npx cds build --production --for postgresql
+      tasks:
+        - name: deploy-to-postgresql
+          command: npm start
     requires:
-      # The deployer needs to be bound to the database service instance
       - name: db # This name MUST match the database resource name
 
   - name: hcrseries
@@ -76,7 +70,8 @@ modules:
       commands:
         - npm install
         - npm run build:cf
-      supported-platforms: []
+      supported-platforms:
+        []
 
 resources:
   - name: series-repo-host
@@ -114,13 +109,12 @@ resources:
       config:
         xsappname: series-${space}
         tenant-mode: dedicated
-  - name: db 
+  - name: db
     type: org.cloudfoundry.managed-service
     parameters:
-      service: postgresql-db 
-      service-plan: trial 
+      service: postgresql-db
+      service-plan: trial
 
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
-
