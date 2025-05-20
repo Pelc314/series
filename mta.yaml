@@ -2,6 +2,18 @@ _schema-version: 3.3.0
 ID: series
 description: A simple CAP project.
 version: 1.0.0
+
+# GLOBAL BUILD PARAMETERS
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production --for postgresql
+        - echo "---Global-build-Contents of gen/pg/db AFTER global cds build:---"
+        - ls -la gen/pg/db # CRITICAL DIAGNOSTIC: Verify package.json is here
+        - echo "--------------------------------------------------------------------"
+
 modules:
   - name: series-srv
     type: nodejs
@@ -112,9 +124,3 @@ parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
 
-build-parameters:
-  before-all:
-    - builder: custom
-      commands:
-        - npm ci
-        - npx cds build --production
