@@ -16,9 +16,9 @@ class SeriesService extends cds.ApplicationService {
             ]);
         }
 
-        await INSERT.into(tvSeries).entries([
-            { ID: 6, title: 'The Office2', episodeCount: 69, genre: 'Drama', runningPeriod: '2012-2013' }
-        ]);
+        // await INSERT.into(tvSeries).entries([
+        //     { ID: 6, title: 'The Office2', episodeCount: 69, genre: 'Drama', runningPeriod: '2012-2013' }
+        // ]);
 
         console.log('test');
         this.on('READ', tvSeries, async (req) => {
